@@ -181,3 +181,23 @@ a rejected password, and logout.
 Stat and button colours are fields on each record, sampled from the
 screenshot (red panels #AD3330 and #7E2622, header buttons #E6D4D8,
 Explore more #79B9BC). Change them in admin and the frontend follows.
+
+
+7. Continuous integration
+-------------------------
+GitHub Actions runs on every push to main and on every pull request.
+
+Backend workflow: .github/workflows/ci.yml
+    - Starts PostgreSQL
+    - Installs requirements.txt
+    - Runs python manage.py test
+    - Media downloads are skipped in CI with SKIP_MEDIA_DOWNLOAD=1 so the
+      suite does not depend on ughe.org being reachable. The external URLs
+      remain in the database.
+
+Frontend workflow: .github/workflows/ci.yml
+    - npm ci
+    - npm run typecheck
+    - npm run build
+
+The badges on each repository README show the latest result.
