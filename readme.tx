@@ -7,10 +7,12 @@ Backend (Django):  https://github.com/Pacifique5/UGHE-Backend
 Frontend (Next.js): https://github.com/Pacifique5/UGHE-Frontend
 
 This file is included in both repositories and is the setup record for the
-UGHE Test Web App. The page recreates the supplied homepage screenshot.
-Every visible item (logo, buttons, menus, slideshow frames, Facts & Stats
-title, numbers, descriptions, and colours) is stored in PostgreSQL and
-edited in Django admin. The Next.js app only renders the API response.
+UGHE Test Web App. The page follows the UGHE homepage at https://ughe.org/
+and the supplied screenshot. Every visible item (logo, buttons, menus,
+slideshow frames, applications band, Facts & Stats, academics columns,
+news stories, impact band, footer, numbers, descriptions, and colours) is
+stored in PostgreSQL and edited in Django admin. The Next.js app only
+renders the API response.
 
 
 What was built
@@ -20,6 +22,11 @@ What was built
 - Token login with one predefined staff account.
 - A slideshow that accepts one or many images, a YouTube link, or a direct
   video file (.mp4, .webm, .ogg).
+- The rest of the landing page from ughe.org: applications, a count-up
+  Facts & Stats row, the academics and admissions band, a news carousel,
+  the impact band, and the footer. Numbers animate from 0 when the row
+  scrolls into view. Bands fade upward. Those timings and colours are
+  fields, so they can be changed in Django admin.
 - Search over the content already loaded for the page.
 
 
@@ -30,27 +37,34 @@ Stack and approach
 - Database: PostgreSQL. The role is `postgres` with no password. The
   application database is named `ughe`, so the project tables are not mixed
   into the default `postgres` database.
-- Docker is not used. The app runs with the local PostgreSQL service, a
-  Python virtualenv, and the Next.js dev server. This avoids Docker freezing
-  the development machine. Evaluators can run the same steps below with
-  Python, Node.js, and PostgreSQL installed normally.
+- Day-to-day development on this machine does not start Docker, because
+  Docker can freeze the PC. The same app is still packaged for evaluation:
+  each repository has a Dockerfile and a docker-compose.yml. Clone the two
+  repositories as sibling folders named backend and frontend, then from
+  either folder run `docker compose up --build`. That starts PostgreSQL,
+  applies migrations, loads the homepage, and serves Next.js on port 3000.
+  The browser calls the API at http://localhost:8000. Inside the frontend
+  container, server-side requests use http://backend:8000.
 - Libraries are listed in backend/requirements.txt and frontend/package.json.
 
 
 Font
 ----
-The brief asks for Museo Slab. That face is commercial (Adobe Fonts) and is
-not available as a free file, so the interface uses Roboto Slab, which the
-brief allows.
+The brief asks for Museo Slab. UGHE publishes that face from its homepage
+stylesheet, so the page loads those files first and keeps Roboto Slab as
+the fallback the brief allows.
 
-- Name used: Roboto Slab
-- Found at: https://fonts.google.com/specimen/Roboto+Slab
-- Included in code: frontend/src/app/layout.tsx loads it with
+- Name used: Museo Slab
+- Found at: https://ughe.org/wp-content/uploads/elementor/css/post-2136.css
+  which points at the .ttf files under /wp-content/uploads/2026/04/
+- Included in code: frontend/src/app/globals.css declares @font-face for
+  Museo Slab and lists it first on the body.
+- Fallback name: Roboto Slab
+- Fallback found at: https://fonts.google.com/specimen/Roboto+Slab
+- Fallback included in code: frontend/src/app/layout.tsx loads it with
   next/font/google (Roboto_Slab). That sets the CSS variable
-  --font-roboto-slab. frontend/src/app/globals.css applies the variable on
-  the page. Both files contain a comment that records this choice.
-- If the downloaded font cannot load, the CSS falls back to Rockwell and
-  then Courier New.
+  --font-roboto-slab. globals.css uses it after Museo Slab, then Rockwell
+  and Courier New. Both files contain a comment that records this choice.
 
 
 Predefined staff account
@@ -178,9 +192,12 @@ a rejected password, and logout.
 
 6. Colours
 ----------
-Stat and button colours are fields on each record, sampled from the
-screenshot (red panels #AD3330 and #7E2622, header buttons #E6D4D8,
-Explore more #79B9BC). Change them in admin and the frontend follows.
+Stat and button colours are fields on each record. The stat row uses the
+live homepage values #C42127 and #8F1A1D. Header buttons stay #E6D4D8 and
+the slideshow button stays #79B9BC. The footer is #C22226. Change any of
+them in admin and the frontend follows. Count-up duration is also a field:
+the first three stats run for 2000ms and 4TH runs for 100ms, matching the
+data-counter values on ughe.org.
 
 
 7. Continuous integration
