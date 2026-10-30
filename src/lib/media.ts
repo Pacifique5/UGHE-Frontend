@@ -1,7 +1,7 @@
 /** Keep colour values from the API inside a hex colour so they can be used in CSS. */
 export function paint(value: string, fallback: string): string {
   const trimmed = value.trim();
-  return /^#(?:[0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/.test(trimmed) ? trimmed : fallback;
+  return /^#(?:[0-9a-fA-F]{3}|[0-9a-fA-F]{6}|[0-9a-fA-F]{8})$/.test(trimmed) ? trimmed : fallback;
 }
 
 export function youtubeEmbed(url: string): string | null {

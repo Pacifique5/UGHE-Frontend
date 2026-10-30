@@ -92,6 +92,32 @@ function collectHits(data: Homepage, query: string): SearchHit[] {
     }
   }
 
+  for (const block of data.blocks) {
+    const label = `${block.title} ${block.body}`;
+    if (label.toLowerCase().includes(needle)) {
+      const href =
+        block.kind === "promo"
+          ? "#applications"
+          : block.kind === "news"
+            ? "#news"
+            : block.kind === "impact"
+              ? "#impact"
+              : "#academics";
+      hits.push({ key: `block-${block.id}`, label: block.title, href, external: false });
+    }
+  }
+
+  for (const story of data.stories) {
+    if (story.title.toLowerCase().includes(needle)) {
+      hits.push({
+        key: `story-${story.id}`,
+        label: story.title,
+        href: story.url,
+        external: true,
+      });
+    }
+  }
+
   return hits.slice(0, 12);
 }
 

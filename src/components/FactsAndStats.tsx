@@ -1,6 +1,9 @@
 import { paint } from "@/lib/media";
 import type { Section } from "@/lib/types";
 
+import { CountUp } from "./CountUp";
+import { Reveal } from "./Reveal";
+
 export function FactsAndStats({ sections }: { sections: Section[] }) {
   if (sections.length === 0) {
     return null;
@@ -20,8 +23,16 @@ export function FactsAndStats({ sections }: { sections: Section[] }) {
                   color: paint(stat.text_color, "#FFFFFF"),
                 }}
               >
-                <p className="stat-value">{stat.display_value}</p>
-                <p className="stat-copy">{stat.description}</p>
+                <Reveal>
+                  <CountUp
+                    to={stat.count_to}
+                    suffix={stat.count_suffix}
+                    duration={stat.count_duration_ms}
+                    grouping={stat.use_grouping}
+                    fallback={stat.display_value}
+                  />
+                  <p className="stat-copy">{stat.description}</p>
+                </Reveal>
               </li>
             ))}
           </ul>

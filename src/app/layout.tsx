@@ -4,15 +4,15 @@ import { Roboto_Slab } from "next/font/google";
 import "./globals.css";
 
 /*
-  Font name: Roboto Slab.
-  How it is included: next/font/google downloads the font during `next dev`
-  and `next build`, then exposes it as the CSS variable --font-roboto-slab.
-  globals.css applies that variable on the body.
-  Where it was found: https://fonts.google.com/specimen/Roboto+Slab
-  Museo Slab was requested first. It is sold through Adobe Fonts and is not
-  available as a free file, so this project uses Roboto Slab, which the brief
-  lists as an acceptable substitute. Rockwell is named only as a last-resort
-  fallback in globals.css if the downloaded font cannot load.
+  Font name: Museo Slab, falling back to Roboto Slab.
+  Museo Slab is applied in globals.css with @font-face. The files were found
+  in the public UGHE homepage stylesheet:
+  https://ughe.org/wp-content/uploads/elementor/css/post-2136.css
+  How the fallback is included: next/font/google downloads Roboto Slab during
+  `next dev` and `next build`, then exposes it as --font-roboto-slab.
+  Where Roboto Slab was found: https://fonts.google.com/specimen/Roboto+Slab
+  The brief also allows Rockwell and Courier New, which remain the last
+  families in the font stack in globals.css.
 */
 const robotoSlab = Roboto_Slab({
   subsets: ["latin"],
