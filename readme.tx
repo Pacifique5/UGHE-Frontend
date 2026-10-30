@@ -1,0 +1,183 @@
+UGHE Test Web App
+===================
+
+Public repositories
+-------------------
+Backend (Django):  https://github.com/Pacifique5/UGHE-Backend
+Frontend (Next.js): https://github.com/Pacifique5/UGHE-Frontend
+
+This file is included in both repositories and is the setup record for the
+UGHE Test Web App. The page recreates the supplied homepage screenshot.
+Every visible item (logo, buttons, menus, slideshow frames, Facts & Stats
+title, numbers, descriptions, and colours) is stored in PostgreSQL and
+edited in Django admin. The Next.js app only renders the API response.
+
+
+What was built
+--------------
+- A Django REST API and Django admin for homepage content.
+- A Next.js frontend that renders that content.
+- Token login with one predefined staff account.
+- A slideshow that accepts one or many images, a YouTube link, or a direct
+  video file (.mp4, .webm, .ogg).
+- Search over the content already loaded for the page.
+
+
+Stack and approach
+------------------
+- Frontend: Next.js (App Router) and TypeScript.
+- Backend: Django 5.2 and Django REST Framework.
+- Database: PostgreSQL. The role is `postgres` with no password. The
+  application database is named `ughe`, so the project tables are not mixed
+  into the default `postgres` database.
+- Docker is not used. The app runs with the local PostgreSQL service, a
+  Python virtualenv, and the Next.js dev server. This avoids Docker freezing
+  the development machine. Evaluators can run the same steps below with
+  Python, Node.js, and PostgreSQL installed normally.
+- Libraries are listed in backend/requirements.txt and frontend/package.json.
+
+
+Font
+----
+The brief asks for Museo Slab. That face is commercial (Adobe Fonts) and is
+not available as a free file, so the interface uses Roboto Slab, which the
+brief allows.
+
+- Name used: Roboto Slab
+- Found at: https://fonts.google.com/specimen/Roboto+Slab
+- Included in code: frontend/src/app/layout.tsx loads it with
+  next/font/google (Roboto_Slab). That sets the CSS variable
+  --font-roboto-slab. frontend/src/app/globals.css applies the variable on
+  the page. Both files contain a comment that records this choice.
+- If the downloaded font cannot load, the CSS falls back to Rockwell and
+  then Courier New.
+
+
+Predefined staff account
+------------------------
+Username: ughe_admin
+Password: UGHE-admin-2026
+
+The same account signs in at http://localhost:3000/login and at
+http://127.0.0.1:8000/admin/
+
+
+Folder layout
+-------------
+backend/                         Django project (UGHE-Backend repository)
+  manage.py
+  requirements.txt
+  ughe_backend/                  settings, root URLs, WSGI
+  accounts/                      login, logout, and current-user API
+  content/                       models, admin, homepage API, seed command
+    management/commands/seed_homepage.py
+    seed_data.py                 starting copy taken from the screenshot
+  media/                         uploaded and seeded files (created locally)
+
+frontend/                        Next.js project (UGHE-Frontend repository)
+  src/app/                       routes: / and /login
+  src/components/                header, slideshow, facts, login form
+  src/lib/                       API client and shared types
+
+
+1. PostgreSQL
+-------------
+Install PostgreSQL and make sure the service is running.
+Create the database once (the role `postgres` has no password on this setup):
+
+    psql -U postgres -h localhost -c "CREATE DATABASE ughe;"
+
+If that database already exists, the command reports an error and you can
+continue. Connection defaults, all overridable with environment variables
+or a backend/.env file copied from backend/.env.example:
+
+    POSTGRES_DB=ughe
+    POSTGRES_USER=postgres
+    POSTGRES_PASSWORD=
+    POSTGRES_HOST=localhost
+    POSTGRES_PORT=5432
+
+
+2. Backend
+----------
+From the backend directory:
+
+    python -m venv .venv
+
+Windows PowerShell:
+
+    .\.venv\Scripts\python.exe -m pip install -r requirements.txt
+    .\.venv\Scripts\python.exe manage.py migrate
+    .\.venv\Scripts\python.exe manage.py seed_homepage
+    .\.venv\Scripts\python.exe manage.py runserver
+
+macOS or Linux:
+
+    source .venv/bin/activate
+    pip install -r requirements.txt
+    python manage.py migrate
+    python manage.py seed_homepage
+    python manage.py runserver
+
+seed_homepage loads the screenshot content, downloads the UGHE logo and
+slide images into media/, and creates the staff account. Run it again any
+time you want to restore that starting content.
+
+API:
+    GET  http://127.0.0.1:8000/api/homepage/
+    POST http://127.0.0.1:8000/api/auth/login/
+         JSON body: {"username": "ughe_admin", "password": "UGHE-admin-2026"}
+    POST http://127.0.0.1:8000/api/auth/logout/
+         Header: Authorization: Token <token>
+    GET  http://127.0.0.1:8000/api/auth/me/
+         Header: Authorization: Token <token>
+
+Django admin: http://127.0.0.1:8000/admin/
+
+
+3. Frontend
+-----------
+From the frontend directory, in a second terminal:
+
+    npm install
+    npm run dev
+
+Optional: copy frontend/.env.example to frontend/.env.local if the API is
+not on http://127.0.0.1:8000. The code uses that address when the variable
+is unset.
+
+Open http://localhost:3000
+
+
+4. How to change what the page shows
+------------------------------------
+1. Open http://localhost:3000/login and sign in, or go straight to Django admin.
+2. Edit Site settings, Action links, Navigation items, Hero slides, or
+   Page sections (the stats are edited on the section).
+3. For a slide, choose Image or Video.
+   - Image: upload a file or paste an image URL.
+   - Video: paste a YouTube link or a direct video-file URL, or upload a file.
+   - An uploaded file is shown instead of the external URL.
+4. Uncheck "Is active" to hide an item without deleting it.
+5. Refresh http://localhost:3000. The homepage request is not cached.
+
+The first seeded slide uses the Butaro Dialogues caption from the screenshot.
+Further slides are included so the slideshow can show more than one image
+and a video. Deactivate the extra slides in admin if you want a single frame.
+
+
+5. Checks
+---------
+From the backend directory, with the virtualenv Python:
+
+    .\.venv\Scripts\python.exe manage.py test
+
+The tests cover the homepage payload, hidden slides, the predefined login,
+a rejected password, and logout.
+
+
+6. Colours
+----------
+Stat and button colours are fields on each record, sampled from the
+screenshot (red panels #AD3330 and #7E2622, header buttons #E6D4D8,
+Explore more #79B9BC). Change them in admin and the frontend follows.
